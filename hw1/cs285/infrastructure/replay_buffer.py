@@ -23,6 +23,11 @@ class ReplayBuffer(object):
         else:
             return 0
 
+    def sample_random_data(self, batch_size):
+        assert self.obs.shape[0] == self.acs.shape[0] == self.rews.shape[0] == self.next_obs.shape[0] == self.terminals.shape[0]
+        idxs = np.random.choice(self.obs.shape[0], batch_size)
+        return self.obs[idxs], self.acs[idxs], self.rews[idxs], self.next_obs[idxs], self.terminals
+
     def add_rollouts(self, paths, concat_rew=True):
 
         # add new rollouts into our list of rollouts

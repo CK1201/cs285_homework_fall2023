@@ -33,15 +33,21 @@ def sample_trajectory(env, policy, max_path_length, render=False):
             image_obs.append(cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC))
     
         # TODO use the most recent ob to decide what to do
-        ac = TODO # HINT: this is a numpy array
-        ac = ac[0]
+        # ac = policy.mean_net(ptu.from_numpy(np.array(ob))) # HINT: this is a numpy array
+        ac = policy(ptu.from_numpy(np.array(ob))).sample()
+        
+        ac = ptu.to_numpy(ac)
+        # print(type(ac))
+        # print("ac:" + ac.shape)
+        # print(ac)
+        # ac = ac[0]
 
         # TODO: take that action and get reward and next ob
-        next_ob, rew, done, _ = TODO
+        next_ob, rew, done, _ = env.step(ac) # HINT: this is a numpy array
         
         # TODO rollout can end due to done, or due to max_path_length
         steps += 1
-        rollout_done = TODO # HINT: this is either 0 or 1
+        rollout_done = done or (steps >= max_path_length) # HINT: this is either 0 or 1
         
         # record result of taking that action
         obs.append(ob)
@@ -91,6 +97,13 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False):
         paths.append(path)
     return paths
 
+def relabel_with_expert(expert_policy, paths):
+    """Relabel states with expert policy."""
+    path_relabeled = []
+    for path in paths:
+        path["action"] = ptu.to_numpy(expert_policy(ptu.from_numpy(np.array(path["observation"]))))
+        path_relabeled.append(path)
+    return path_relabeled
 
 ########################################
 ########################################

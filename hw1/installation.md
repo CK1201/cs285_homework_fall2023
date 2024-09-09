@@ -24,6 +24,8 @@ A. (Recommended) Install with conda:
 	4. Install the requirements into this conda environment
 	```
 	pip install -r requirements.txt
+	// option
+	// pip install torch==1.12.1+cu113 --index-url https://download.pytorch.org/whl/cu113
 	```
 
 	5. Allow your code to be able to see 'cs285'
