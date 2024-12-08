@@ -15,7 +15,7 @@ def sample_trajectory(
     env: gym.Env, policy: MLPPolicy, max_length: int, render: bool = False
 ) -> Dict[str, np.ndarray]:
     """Sample a rollout in the environment from a policy."""
-    ob = env.reset()
+    ob = env.reset()[0]
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
@@ -24,16 +24,19 @@ def sample_trajectory(
             if hasattr(env, "sim"):
                 img = env.sim.render(camera_name="track", height=500, width=500)[::-1]
             else:
-                img = env.render(mode="single_rgb_array")
+                img = env.render()
             image_obs.append(
                 cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC)
             )
 
         # TODO use the most recent ob and the policy to decide what to do
-        ac: np.ndarray = policy(ptu.from_numpy(np.array(ob))).sample()
-
+        # print("ob: ", ob)
+        ac: np.ndarray = policy.get_action(np.array(ob))
         # TODO: use that action to take a step in the environment
-        next_ob, rew, done, _ = env.step(ac)
+        next_ob, rew, done, _, _ = env.step(ac)
+        
+        # print("next_ob: ", next_ob)
+        # print("steps: ", steps)
 
         # TODO rollout can end due to done, or due to max_length
         steps += 1
@@ -51,7 +54,7 @@ def sample_trajectory(
         # end the rollout if the rollout ended
         if rollout_done:
             break
-
+    # print("rewards: ", rewards)
     return {
         "observation": np.array(obs, dtype=np.float32),
         "image_obs": np.array(image_obs, dtype=np.uint8),

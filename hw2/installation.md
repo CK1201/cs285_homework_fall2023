@@ -28,6 +28,11 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+6. 
+```
+unset LD_LIBRARY_PATH
+```
+
 This conda environment requires activating it every time you open a new terminal (in order to run code), but the benefit is that the required dependencies for this codebase will not affect existing/other versions of things on your computer. This stand-alone environment will have everything that is necessary.
 
 

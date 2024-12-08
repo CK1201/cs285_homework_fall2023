@@ -27,7 +27,7 @@ def run_training_loop(args):
     ptu.init_gpu(use_gpu=not args.no_gpu, gpu_id=args.which_gpu)
 
     # make the gym environment
-    env = gym.make(args.env_name, render_mode=None)
+    env = gym.make(args.env_name, render_mode="rgb_array")
     discrete = isinstance(env.action_space, gym.spaces.Discrete)
 
     # add action noise, if needed
@@ -80,7 +80,7 @@ def run_training_loop(args):
         trajs_dict = {k: [traj[k] for traj in trajs] for k in trajs[0]}
 
         # TODO: train the agent using the sampled trajectories and the agent's update function
-        train_info: dict = None
+        train_info: dict = agent.update(trajs_dict["observation"], trajs_dict["action"], trajs_dict["reward"], trajs_dict["terminal"])
 
         if itr % args.scalar_log_freq == 0:
             # save eval metrics
@@ -112,6 +112,7 @@ def run_training_loop(args):
             eval_video_trajs = utils.sample_n_trajectories(
                 env, agent.actor, MAX_NVIDEO, max_ep_len, render=True
             )
+            print("Done collecting...")
 
             logger.log_trajs_as_videos(
                 eval_video_trajs,
